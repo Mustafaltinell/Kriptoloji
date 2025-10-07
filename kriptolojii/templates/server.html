@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card shadow border-0 rounded-4">
+  <div class="card-body p-0">
+    <div class="d-flex gap-2 p-3 bg-light rounded-top-4">
+      <a href="{{ url_for('client_page') }}" class="btn btn-outline-primary px-4 fw-semibold">🔒 İstemci (Şifreleme)</a>
+      <a href="{{ url_for('server_page') }}" class="btn btn-success px-4 fw-semibold">🔓 Sunucu (Deşifreleme)</a>
+    </div>
+    <div class="p-4">
+      <h3 class="text-success fw-bold mb-3">Sunucu - Mesaj Deşifreleme</h3>
+      <form id="decrypt-form" class="vstack gap-3">
+        <div>
+          <label class="form-label">Deşifreleme Yöntemi</label>
+          <select class="form-select method-select" name="method">
+            <option>Caesar Cipher (Kaydırma)</option>
+            <option>Vigenère Cipher</option>
+          </select>
+        </div>
+        <div class="key-group">
+          <label class="form-label key-label">🔑 Anahtar (Kaydırma Sayısı)</label>
+          <input type="text" class="form-control key-input" name="key" value="3" required>
+          <div class="form-text key-help">Caesar için sayı (örn. 3), Vigenère için harfli anahtar (örn. LEMON).</div>
+        </div>
+        <div>
+          <label class="form-label">🔐 Şifreli Mesaj</label>
+          <textarea class="form-control" name="message" rows="5" placeholder="Deşifrelenecek mesajı buraya yapıştırın..." required></textarea>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-success btn-lg" type="submit">🔓 Deşifrele</button>
+          <button class="btn btn-outline-secondary" type="button" id="copy-decrypted">Kopyala</button>
+        </div>
+      </form>
+      <div id="decrypt-result" class="alert alert-success d-none mt-3 mb-0"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

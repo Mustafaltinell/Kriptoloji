@@ -1,0 +1,10 @@
+:root{
+  --soft-bg:#f6f8fc;
+  --client:#1f6feb;
+  --server:#198754;
+}
+.bg-soft{background:var(--soft-bg);}
+.btn-primary{background:var(--client);border-color:var(--client);}
+.btn-success{background:var(--server);border-color:var(--server);}
+.rounded-top-4{border-top-left-radius:1rem;border-top-right-radius:1rem;}
+textarea{resize:vertical;}
