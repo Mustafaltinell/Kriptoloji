@@ -14,3 +14,4 @@ bu nedenle statik ip ve statik port kullandım direkt sabit adrese istek gönder
 Wiresharkta inceledim adapther for loopback traffic capture seçtim 
 tcp.prt ==5000 portumu yazdım sonra projemi çalıştırıp şifrele ve çöz dedim
 wiresharkta flaske gönderilen verileri inceledim post istedği ve dönen json yanıtlarını görüntüledim
+<img width="1918" height="1014" alt="Ekran görüntüsü 2025-10-07 171042" src="https://github.com/user-attachments/assets/d825edcf-8282-4ee8-8925-4feec8cdb1ec" />
