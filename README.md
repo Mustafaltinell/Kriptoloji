@@ -1,0 +1,16 @@
+Kullanıcı, client.html arayüzünden metni ve anahtarı girer, algoritmayı seçer.
+şifrele veya çöz butonuna bastığında javaScript, flask sunucusuna HTTP POST isteği gönderir.
+
+Arayüzde bootstrap kütüphanesi kullandım 
+
+Flask, gelen postisteğini alır ve algorithms.py dosyasındaki ilgili şifreleme fonksiyonunu çağırır.
+İşlenen sonuç json formatında istemciye geri döndürülür
+
+Örnek 2 şifreleme türünü şimdiden yaptım özelliklerine göre kaydırma işlemini şifrelemeyi yaparlar algrithms.pyde
+
+İP ve Port statik flask çalıştırıldığında benim porttan yapıyor
+bu nedenle statik ip ve statik port kullandım direkt sabit adrese istek gönderiyor
+
+Wiresharkta inceledim adapther for loopback traffic capture seçtim 
+tcp.prt ==5000 portumu yazdım sonra projemi çalıştırıp şifrele ve çöz dedim
+wiresharkta flaske gönderilen verileri inceledim post istedği ve dönen json yanıtlarını görüntüledim
