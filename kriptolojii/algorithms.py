@@ -1,16 +1,4 @@
-"""algorithms.py
 
-Bu dosya mevcut projenin ÜZERİNE eklenmiştir.
-
-Caesar/Vigenère fonksiyonları korunur.
-
-Eklenenler:
-- AES-128 (kütüphaneli)
-- DES (kütüphaneli)
-- RSA (kütüphaneli) [OAEP]
-- RSA ile anahtar dağıtımı (Hybrid: RSA key exchange + AES)
-- Kütüphanesiz sadeleştirilmiş MiniAES (eğitsel; gerçek AES değildir)
-"""
 
 from __future__ import annotations
 
@@ -21,9 +9,6 @@ from dataclasses import dataclass
 from typing import Tuple, Dict, Any
 
 
-# =========================
-# Mevcut algoritmalar (dokunulmadı)
-# =========================
 
 def caesar_encrypt(text: str, shift: int) -> str:
     res = []
@@ -71,9 +56,6 @@ def vigenere_decrypt(text: str, key: str) -> str:
             res.append(ch)
     return "".join(res)
 
-# =========================
-# Ortak yardımcılar
-# =========================
 
 def _b64e(b: bytes) -> str:
     return base64.b64encode(b).decode("ascii")
@@ -116,10 +98,6 @@ def pkcs7_unpad(data: bytes, block_size: int) -> bytes:
         raise ValueError("Geçersiz padding")
     return data[:-pad_len]
 
-
-# =========================
-# Kütüphaneli AES-128 / DES (PyCryptodome)
-# =========================
 
 def aes128_encrypt_lib(plaintext: str, key_str: str) -> str:
     """AES-128-CBC: çıktı Base64( IV || CIPHERTEXT )."""
@@ -185,10 +163,6 @@ def des_decrypt_lib(b64_iv_ct: str, key_str: str) -> str:
     return pt.decode("utf-8", errors="replace")
 
 
-# =========================
-# RSA (kütüphaneli) ve Hybrid (RSA key exchange + AES)
-# =========================
-
 def rsa_generate_keypair(bits: int = 2048) -> Tuple[str, str]:
     """PEM formatında (public_pem, private_pem) döndürür."""
     try:
@@ -229,8 +203,6 @@ def rsa_decrypt_lib(b64_ciphertext: str, private_pem: str) -> str:
     return pt.decode("utf-8", errors="replace")
 
 
-# ---- Sunucu tarafı için tek bir RSA anahtar çifti (dosyadan yükle / yoksa üret) ----
-
 _RSA_PUBLIC_PEM: str | None = None
 _RSA_PRIVATE_PEM: str | None = None
 
@@ -268,7 +240,7 @@ def _load_or_create_server_rsa_keypair() -> Tuple[str, str]:
     return pub, priv
 
 
-# Uygulama import edilince anahtarlar hazır olsun (app.py direkt kullanıyor)
+
 _load_or_create_server_rsa_keypair()
 
 
@@ -309,8 +281,6 @@ def hybrid_rsa_aes_encrypt(plaintext: str, server_public_pem: str | None = None)
 
     session_key = get_random_bytes(16)
 
-    # AES ile mesaj
-    # normalize_key_bytes yerine doğrudan session_key kullanıyoruz
     try:
         from Crypto.Cipher import AES
         from Crypto.Random import get_random_bytes
@@ -322,7 +292,7 @@ def hybrid_rsa_aes_encrypt(plaintext: str, server_public_pem: str | None = None)
     ct = cipher.encrypt(pkcs7_pad(plaintext.encode("utf-8"), 16))
     aes_blob = _b64e(iv + ct)
 
-    # RSA ile session key
+
     try:
         from Crypto.PublicKey import RSA
         from Crypto.Cipher import PKCS1_OAEP
@@ -372,12 +342,6 @@ def hybrid_rsa_aes_decrypt(package_json: str, server_private_pem: str | None = N
     return pt.decode("utf-8", errors="replace")
 
 
-# =========================
-# Manuel (kütüphanesiz) MiniAES
-# =========================
-
-# Sabit bir S-box (256 byte). AES'in gerçek S-box'ı DEĞİL.
-# Amaç: "substitution" kavramı + round/permutasyon görünsün.
 _SBOX = bytes([(i * 29 + 71) % 256 for i in range(256)])
 _INV_SBOX = bytearray(256)
 for i, v in enumerate(_SBOX):
@@ -396,7 +360,7 @@ def _rotate_right(b: bytes, n: int) -> bytes:
 
 
 def _miniaes_round_key(master_key: bytes, r: int) -> bytes:
-    # çok basit key schedule: rotate + xor sabit
+   
     k = bytearray(_rotate_left(master_key, r))
     for i in range(len(k)):
         k[i] ^= (17 * r + i) & 0xFF
@@ -420,11 +384,11 @@ def miniaes_encrypt_manual(plaintext: str, key_str: str, rounds: int = 4) -> str
         state = block
         for r in range(1, rounds + 1):
             rk = _miniaes_round_key(key, r)
-            # SubBytes
+          
             state = bytes(_SBOX[b] for b in state)
-            # Permutation
+       
             state = _rotate_left(state, r)
-            # AddRoundKey
+      
             state = bytes((state[i] ^ rk[i]) for i in range(16))
         out.extend(state)
 

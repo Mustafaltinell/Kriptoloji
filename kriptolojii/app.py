@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify, url_for, redirect
 
-# Mevcut + yeni algoritmalar
 from algorithms import (
     caesar_encrypt, caesar_decrypt,
     vigenere_encrypt, vigenere_decrypt,
@@ -15,8 +14,7 @@ import threading, webbrowser, os
 
 app = Flask(__name__)
 
-# Basit "server inbox" (server sayfasında göstermek için)
-INBOX = []  # list[dict]
+INBOX = []  
 
 
 @app.get("/")
@@ -37,7 +35,6 @@ def server_page():
 def _handle_crypto(method: str, key, message: str, decrypt: bool = False):
     m = (method or "").lower()
 
-    # --- Caesar/Vigenere (mevcut) ---
     if m.startswith("caesar"):
         try:
             s = int(key)
@@ -55,7 +52,6 @@ def _handle_crypto(method: str, key, message: str, decrypt: bool = False):
             return {"ok": False, "error": str(e)}
         return {"ok": True, "result": res}
 
-    # --- AES-128 (kütüphaneli) ---
     if m in ("aes", "aes-128", "aes-lib"):
         if not isinstance(key, str) or not key:
             return {"ok": False, "error": "AES için anahtar gerekli (16 byte)."}
@@ -65,7 +61,6 @@ def _handle_crypto(method: str, key, message: str, decrypt: bool = False):
         except Exception as e:
             return {"ok": False, "error": f"AES hata: {e}"}
 
-    # --- DES (kütüphaneli) ---
     if m in ("des", "des-lib"):
         if not isinstance(key, str) or not key:
             return {"ok": False, "error": "DES için anahtar gerekli (8 byte)."}
@@ -75,7 +70,7 @@ def _handle_crypto(method: str, key, message: str, decrypt: bool = False):
         except Exception as e:
             return {"ok": False, "error": f"DES hata: {e}"}
 
-    # --- MiniAES (manuel) ---
+ 
     if m in ("aes-manual", "miniaes", "manual-aes"):
         if not isinstance(key, str) or not key:
             return {"ok": False, "error": "Manuel MiniAES için anahtar gerekli (16 byte önerilir)."}
@@ -85,7 +80,7 @@ def _handle_crypto(method: str, key, message: str, decrypt: bool = False):
         except Exception as e:
             return {"ok": False, "error": f"MiniAES hata: {e}"}
 
-    # --- RSA (OAEP) tek başına (küçük veriler için) ---
+
     if m in ("rsa", "rsa-oaep"):
         try:
             if decrypt:
@@ -96,7 +91,6 @@ def _handle_crypto(method: str, key, message: str, decrypt: bool = False):
         except Exception as e:
             return {"ok": False, "error": f"RSA hata: {e}"}
 
-    # --- RSA key exchange + AES (ödev notuna uygun) ---
     if m in ("rsa-aes", "hybrid", "hybrid-rsa-aes"):
         try:
             if decrypt:
@@ -138,7 +132,7 @@ def api_server_receive():
     key = data.get("key")
     ciphertext = data.get("ciphertext", "")
 
-    # ciphertext'i "message" alanı gibi ele alıp decrypt ederiz
+   
     out = _handle_crypto(method, key, ciphertext, decrypt=True)
     if out.get("ok"):
         INBOX.append({
