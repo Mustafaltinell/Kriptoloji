@@ -1,16 +1,26 @@
-Kullanıcı, client.html arayüzünden metni ve anahtarı girer, algoritmayı seçer.
-şifrele veya çöz butonuna bastığında javaScript, flask sunucusuna HTTP POST isteği gönderir.
+TEKNİK RAPOR TASLAĞI (3–5 sayfa PDF'e dönüştür)
 
-Arayüzde bootstrap kütüphanesi kullandım 
+1) Sistem Mimarisi
+- İstemci: /client sayfası (HTTP POST ile şifreleme/çözme ve sunucuya gönderim)
+- Sunucu: /server sayfası (INBOX gösterir)
 
-Flask, gelen postisteğini alır ve algorithms.py dosyasındaki ilgili şifreleme fonksiyonunu çağırır.
-İşlenen sonuç json formatında istemciye geri döndürülür
+2) Algoritmalar
+- AES-128 (CBC + PKCS7) | Anahtar: 16 byte
+- DES (CBC + PKCS7) | Anahtar: 8 byte
+- RSA (OAEP) | Küçük veri (anahtar/short message)
+- Hybrid (RSA + AES): RSA sadece anahtar dağıtımı için
+- MiniAES (manuel): round + S-box + permütasyon mantığını göstermek için oyuncak model
 
-Örnek 2 şifreleme türünü şimdiden yaptım özelliklerine göre kaydırma işlemini şifrelemeyi yaparlar algrithms.pyde
+3) Wireshark Analizi
+- Capture arayüzü: Loopback (Npcap) veya aktif ethernet/wifi
+- Filtreler: tcp.port == 5000 veya http
+- AES/DES/RSA/Hybrid için payload karşılaştırması (ekran görüntüsü):
+  - Şifreli verinin okunamaz görünmesi
+  - Paket boyutu farkları (özellikle RSA/Hybrid daha büyük)
 
-İP ve Port statik flask çalıştırıldığında benim porttan yapıyor
-bu nedenle statik ip ve statik port kullandım direkt sabit adrese istek gönderiyor
+4) Karşılaştırma (kısa tablo)
+- Hız, çıktı boyutu, kullanım amacı (simetrik/asimetrik)
 
-Wiresharkta inceledim adapther for loopback traffic capture seçtim 
-tcp.prt ==5000 portumu yazdım sonra projemi çalıştırıp şifrele ve çöz dedim
-wiresharkta flaske gönderilen verileri inceledim post istedği ve dönen json yanıtlarını görüntüledim
+5) Öğrenci Yorumu
+- Kütüphaneli vs manuel (MiniAES) farkı
+- Gerçek dünyada neden kütüphane kullanılır (güvenlik, side-channel, doğrulama)

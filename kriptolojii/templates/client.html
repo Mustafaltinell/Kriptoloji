@@ -1,37 +1,114 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="card shadow border-0 rounded-4">
-  <div class="card-body p-0">
-    <div class="d-flex gap-2 p-3 bg-light rounded-top-4">
-      <a href="{{ url_for('client_page') }}" class="btn btn-primary px-4 fw-semibold">🔒 İstemci (Şifreleme)</a>
-      <a href="{{ url_for('server_page') }}" class="btn btn-outline-success px-4 fw-semibold">🔓 Sunucu (Deşifreleme)</a>
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Client</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="bg-soft">
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="m-0">🧑‍💻 Client</h3>
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" href="{{ url_for('server_page') }}">Server Sayfası</a>
+      </div>
     </div>
-    <div class="p-4">
-      <h3 class="text-primary fw-bold mb-3">İstemci - Mesaj Şifreleme</h3>
-      <form id="encrypt-form" class="vstack gap-3">
-        <div>
-          <label class="form-label">Şifreleme Yöntemi</label>
-          <select class="form-select method-select" name="method">
-            <option>Caesar Cipher (Kaydırma)</option>
-            <option>Vigenère Cipher</option>
-          </select>
+
+    <div class="card shadow-sm rounded-4 overflow-hidden">
+      <div class="card-header bg-white rounded-top-4">
+        <div class="small text-muted"></div>
+      </div>
+      <div class="card-body p-4">
+
+        <div class="row g-4">
+          <!-- ENCRYPT -->
+          <div class="col-12 col-lg-6">
+            <h5>🔒 Encrypt</h5>
+            <form id="encrypt-form" class="vstack gap-3">
+              <div>
+                <label class="form-label">Yöntem</label>
+                <select name="method" class="form-select method-select">
+                  <option value="Caesar">Caesar</option>
+                  <option value="Vigenere">Vigenère</option>
+                  <option value="AES-Lib">AES-128 (Kütüphaneli)</option>
+                  <option value="DES-Lib">DES (Kütüphaneli)</option>
+                  <option value="AES-Manual">AES (Kütüphanesiz MiniAES)</option>
+                  <option value="RSA">RSA (OAEP)</option>
+                  <option value="Hybrid-RSA-AES">RSA Key Exchange + AES</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="form-label key-label">🔑 Anahtar</label>
+                <input class="form-control key-input" name="key" placeholder="" />
+                <div class="form-text">AES: 16 byte, DES: 8 byte. Girilen metin kısaysa 0x00 ile pad edilir.</div>
+              </div>
+
+              <div>
+                <label class="form-label">Mesaj (Plaintext)</label>
+                <textarea class="form-control" name="message" rows="5" placeholder="Merhaba..." required></textarea>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary" type="submit">Şifrele</button>
+                <button id="encrypt-send" class="btn btn-outline-primary" type="button">Şifrele &amp; Sunucuya Gönder</button>
+                <button id="copy-encrypted" class="btn btn-outline-secondary" type="button">Kopyala</button>
+              </div>
+
+              <div id="encrypt-result" class="alert alert-primary d-none"></div>
+            </form>
+          </div>
+
+          <!-- DECRYPT -->
+          <div class="col-12 col-lg-6">
+            <h5>🔓 Decrypt</h5>
+            <form id="decrypt-form" class="vstack gap-3">
+              <div>
+                <label class="form-label">Yöntem</label>
+                <select name="method" class="form-select method-select">
+                  <option value="Caesar">Caesar</option>
+                  <option value="Vigenere">Vigenère</option>
+                  <option value="AES-Lib">AES-128 (Kütüphaneli)</option>
+                  <option value="DES-Lib">DES (Kütüphaneli)</option>
+                  <option value="AES-Manual">AES (Kütüphanesiz MiniAES)</option>
+                  <option value="RSA">RSA (OAEP)</option>
+                  <option value="Hybrid-RSA-AES">RSA Key Exchange + AES</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="form-label key-label">🔑 Anahtar</label>
+                <input class="form-control key-input" name="key" placeholder="" />
+              </div>
+
+              <div>
+                <label class="form-label">Şifreli Metin (Ciphertext / Base64)</label>
+                <textarea class="form-control" name="message" rows="5" placeholder="..." required></textarea>
+                <div class="form-text">AES/DES çıktısı: base64(iv|ciphertext). Hybrid çıktısı: JSON string.</div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button class="btn btn-success" type="submit">Çöz</button>
+                <button id="copy-decrypted" class="btn btn-outline-secondary" type="button">Kopyala</button>
+              </div>
+
+              <div id="decrypt-result" class="alert alert-success d-none"></div>
+            </form>
+          </div>
         </div>
-        <div class="key-group">
-          <label class="form-label key-label">🔑 Anahtar (Kaydırma Sayısı)</label>
-          <input type="text" class="form-control key-input" name="key" value="3" required>
-          <div class="form-text key-help">Caesar için sayı (örn. 3), Vigenère için harfli anahtar (örn. LEMON).</div>
+
+        <hr class="my-4" />
+
+        <div class="small text-muted">
+          
         </div>
-        <div>
-          <label class="form-label">🗨️ Mesaj</label>
-          <textarea class="form-control" name="message" rows="5" placeholder="Şifrelenecek mesajınızı buraya yazın..." required></textarea>
-        </div>
-        <div class="d-flex gap-2">
-          <button class="btn btn-primary btn-lg" type="submit">🔒 Şifrele</button>
-          <button class="btn btn-outline-secondary" type="button" id="copy-encrypted">Kopyala</button>
-        </div>
-      </form>
-      <div id="encrypt-result" class="alert alert-primary d-none mt-3 mb-0"></div>
+
+      </div>
     </div>
   </div>
-</div>
-{% endblock %}
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
